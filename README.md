@@ -1,45 +1,107 @@
  
+ 
+
+---
+
 # 🍕 The Great Pizza Analytics Challenge 📊
 
-This repository contains the SQL queries and results from the "The Great Pizza Analytics Challenge," a project focused on foundational data inspection, filtering, exploration, and sales performance analysis for a pizza business.
+SQL Explorations in Data Inspection, Filtering & Sales Performance Analysis
 
-## 💾 Dataset Foundation
+This project showcases SQL queries and insights generated for a pizza business dataset. It covers **data inspection, filtering, exploration**, and **sales performance analytics** using SQL fundamentals such as `SELECT`, `WHERE`, `JOIN`, `GROUP BY`, and aggregate functions.
 
-[cite_start]The initial phase involved creating the database schema and populating the tables (`orders`, `order_details`, `pizzas`, `pizza_types`)[cite: 3].
+---
 
-## Phase 1: Foundation & Inspection 🔎
+## 💾 Dataset Overview
 
-[cite_start]This phase ensures data quality and understanding the basic structure of the pizza data[cite: 2].
+The dataset includes four core tables:
 
-| Task | Description | SQL Query | Result Snippet |
-| :--- | :--- | :--- | :--- |
-| **1.** List all unique pizza categories | [cite_start]Uses `DISTINCT` to find unique categories[cite: 4]. | [cite_start]`select distinct category FROM idc_pizza.pizza_types;` [cite: 5] | [cite_start]`Chicken`, `Classic`, `Supreme`, `Veggie` [cite: 5] |
-| **2.** Display key pizza info, replacing `NULL` ingredients | [cite_start]Uses `COALESCE` to replace null values with `"Missing Data"`[cite: 6]. | [cite_start]`SELECT pizza_type_id, name, coalesce(ingredients, 'Missing Data') as ingredients FROM idc_pizza.pizza_types limit 5;` [cite: 7] | [cite_start]Shows the first 5 rows with non-null ingredients [cite: 7] |
-| **3.** Check for pizzas missing a price | [cite_start]Uses `IS NULL` to identify records with missing price data[cite: 9]. | [cite_start]`SELECT * FROM idc_pizza.pizzas where price is null;` [cite: 10] | [cite_start]An empty result grid suggests no prices are missing [cite: 10] |
+* **orders**
+* **order_details**
+* **pizzas**
+* **pizza_types**
 
-## Phase 2: Filtering & Exploration 🗺️
+These tables form the foundation for exploring order behavior, pizza pricing, categories, and sales performance.
 
-[cite_start]This phase focuses on filtering data using `WHERE`, `ORDER BY`, `IN`, `BETWEEN`, and `LIKE`[cite: 11].
+---
 
-| Task | Description | SQL Query |
-| :--- | :--- | :--- |
-| **1.** Orders placed on '2015-01-01' | [cite_start]Filters records by a specific date[cite: 12]. | [cite_start]`select * FROM idc_pizza.orders where date = '2015-01-01';` [cite: 13, 14] |
-| **2.** List pizzas with `price` descending | [cite_start]Sorts all pizzas from most to least expensive[cite: 15]. | [cite_start]`select * FROM idc_pizza.pizzas order by price desc;` [cite: 16, 17] |
-| **3.** Pizzas sold in sizes 'L' or 'XL' | [cite_start]Uses the `IN` operator to filter by multiple size values[cite: 18]. | [cite_start]`SELECT * FROM idc_pizza.pizzas where size in ('L','XL');` [cite: 19, 20] |
-| **4.** Pizzas priced between \$15.00 and \$17.00 | [cite_start]Uses the `BETWEEN` operator for a range of prices[cite: 21]. | [cite_start]`SELECT * FROM idc_pizza.pizzas where price between 15.00 and 17.00;` [cite: 22, 23] |
-| **5.** Pizzas with "Chicken" in the name | [cite_start]Uses the `LIKE` operator with wildcards (`%`) for partial text matching[cite: 24]. | [cite_start]`SELECT * FROM idc_pizza.pizza_types where name like '%chicken%';` [cite: 25, 26] |
-| **6.** Orders on '2015-02-15' **or** after 8 PM | [cite_start]Combines two filtering conditions using `OR`[cite: 27]. | [cite_start]`SELECT * FROM idc_pizza.orders where date ='2015-02-15' or time >='20:00:00';` [cite: 28, 29, 30] |
+## 🔎 Phase 1: Foundation & Inspection
 
-## Phase 3: Sales Performance 📈
+Focus: Understanding the structure and quality of the data.
 
-[cite_start]This phase uses aggregate functions (`SUM`, `AVG`), joins (`JOIN`), grouping (`GROUP BY`), and filtering on aggregates (`HAVING`, `LEFT JOIN`, `SELF JOIN`) to analyze sales[cite: 31].
+| Task                                                 | Description                                                     | Sample Query                                                                                                 | Output Snippet                                      |
+| ---------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- |
+| **1. List all unique pizza categories**              | Uses `DISTINCT` to display unique categories.                   | `SELECT DISTINCT category FROM pizza_types;`                                                                 | Classic, Chicken, Supreme, Veggie                   |
+| **2. Display pizza info & replace NULL ingredients** | Uses `COALESCE` to replace `NULL` values with `"Missing Data"`. | `SELECT pizza_type_id, name, COALESCE(ingredients, 'Missing Data') AS ingredients FROM pizza_types LIMIT 5;` | Shows first 5 pizzas with cleaned ingredient fields |
+| **3. Check pizzas missing a price**                  | Identifies rows where the price is missing.                     | `SELECT * FROM pizzas WHERE price IS NULL;`                                                                  | No missing prices found                             |
 
-| Task | Description | SQL Query | Result Snippet |
-| :--- | :--- | :--- | :--- |
-| **1.** Total quantity of pizzas sold | [cite_start]Uses `SUM` to calculate the total quantity from `order_details`[cite: 32]. | [cite_start]`SELECT sum(quantity) as total_quantity_sold FROM order_details;` [cite: 33, 34, 35] | [cite_start]`49574` [cite: 35] |
-| **2.** Average pizza price | [cite_start]Uses `AVG` and `ROUND` to find the average price across all pizzas[cite: 36]. | [cite_start]`SELECT round(avg(price),2) as Avg_price FROM idc_pizza.pizzas;` [cite: 37, 38] | [cite_start]`16.44` [cite: 38] |
-| **3.** Total order value per order | [cite_start]Uses `JOIN`, `SUM`, and `GROUP BY` to calculate the total price for each unique order[cite: 39]. | [cite_start]SQL query involving joins between `orders`, `order_details`, and `pizzas` [cite: 40, 50] | [cite_start]First order value is `13.25` [cite: 50] |
-| **4.** Total quantity sold per pizza category | [cite_start]Uses `JOIN` to link quantity to category and `GROUP BY` to aggregate[cite: 51]. | [cite_start]SQL query involving joins between `order_details`, `pizzas`, and `pizza_types` [cite: 52, 60] | [cite_start]`Classic` category sold `14888` [cite: 60] |
-| **5.** Categories with more than 5,000 pizzas sold | [cite_start]Extends the previous query using `HAVING` to filter grouped results[cite: 61]. | [cite_start]SQL query with joins, `GROUP BY`, and `having sum(...) > 5000;` [cite: 62, 71] | [cite_start]Includes all four categories: `Classic`, `Veggie`, `Supreme`, `Chicken` [cite: 71] |
-| **6.** Pizzas never ordered | [cite_start]Uses a `LEFT JOIN` and filters where `order_details` records are `NULL`[cite: 72]. | [cite_start]SQL query with `LEFT JOIN` on `order_details` and `WHERE od.order_id IS NULL;` [cite: 73, 82] | [cite_start]Shows pizzas like "The Big Meat Pizza" (M and L sizes) [cite: 82] |
-| **7.** Price differences between different sizes of the same pizza | [cite_start]Uses a `SELF JOIN` on the `pizzas` table and `CASE` or `FIELD` for size comparison[cite: 83]. | [cite_start]SQL query with a `SELF JOIN` on `pizza_type_id` and size ordering logic [cite: 119, 134] | [cite_start]Shows a price difference of `4` for a size `S` to `M` upgrade for "The Barbecue Chicken Pizza" [cite: 134] |
+---
+
+## 🗺️ Phase 2: Filtering & Exploration
+
+Focus: Applying SQL filters using `WHERE`, `ORDER BY`, `IN`, `BETWEEN`, and `LIKE`.
+
+| Task                                       | Description                       | Query                                                                   |
+| ------------------------------------------ | --------------------------------- | ----------------------------------------------------------------------- |
+| **1. Orders on 2015-01-01**                | Filter by specific date.          | `SELECT * FROM orders WHERE date = '2015-01-01';`                       |
+| **2. Pizzas sorted by price (high → low)** | Sort using `ORDER BY`.            | `SELECT * FROM pizzas ORDER BY price DESC;`                             |
+| **3. Pizzas sold in sizes L or XL**        | Filters using `IN`.               | `SELECT * FROM pizzas WHERE size IN ('L', 'XL');`                       |
+| **4. Pizzas priced between $15–$17**       | Uses `BETWEEN`.                   | `SELECT * FROM pizzas WHERE price BETWEEN 15.00 AND 17.00;`             |
+| **5. Pizzas with “Chicken” in the name**   | Uses `LIKE` for pattern matching. | `SELECT * FROM pizza_types WHERE name LIKE '%chicken%';`                |
+| **6. Orders on 2015-02-15 OR after 8PM**   | Uses the `OR` operator.           | `SELECT * FROM orders WHERE date = '2015-02-15' OR time >= '20:00:00';` |
+
+---
+
+## 📈 Phase 3: Sales Performance Analysis
+
+Focus: Using `JOIN`, `SUM`, `AVG`, `GROUP BY`, `HAVING`, and advanced SQL logic for business insights.
+
+| Task                                               | Description                                    | Sample Query                                                                                                                                                                                       | Key Result                                               |
+| -------------------------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| **1. Total quantity of pizzas sold**               | Uses `SUM` on `order_details.quantity`.        | `SELECT SUM(quantity) AS total_quantity_sold FROM order_details;`                                                                                                                                  | **49,574** total pizzas sold                             |
+| **2. Average pizza price**                         | Uses `AVG` with `ROUND`.                       | `SELECT ROUND(AVG(price),2) AS avg_price FROM pizzas;`                                                                                                                                             | **$16.44**                                               |
+| **3. Total order value per order**                 | Joins `orders`, `order_details`, and `pizzas`. | `SELECT o.order_id, SUM(od.quantity * p.price) AS order_value FROM orders o JOIN order_details od ON o.order_id = od.order_id JOIN pizzas p ON od.pizza_id = p.pizza_id GROUP BY o.order_id;`      | First order value: **13.25**                             |
+| **4. Total quantity sold per category**            | Joins with `pizza_types`.                      | Uses `JOIN` + `GROUP BY`.                                                                                                                                                                          | Classic category sold: **14,888**                        |
+| **5. Categories with more than 5,000 pizzas sold** | Adds `HAVING` clause.                          | `... HAVING SUM(od.quantity) > 5000;`                                                                                                                                                              | All four categories qualify                              |
+| **6. Pizzas never ordered**                        | Uses `LEFT JOIN` with `NULL` check.            | `SELECT p.* FROM pizzas p LEFT JOIN order_details od ON p.pizza_id = od.pizza_id WHERE od.order_id IS NULL;`                                                                                       | Includes pizzas like “The Big Meat Pizza (M, L)”         |
+| **7. Price difference between pizza sizes**        | Uses a `SELF JOIN` on `pizzas`.                | `SELECT p1.pizza_type_id, p1.size AS size1, p2.size AS size2, p2.price - p1.price AS price_difference FROM pizzas p1 JOIN pizzas p2 ON p1.pizza_type_id = p2.pizza_type_id AND p1.size < p2.size;` | Example: S → M difference is **4** for BBQ Chicken Pizza |
+
+---
+
+## 🚀 What You Learn from This Project
+
+✔ SQL Filtering
+
+✔ Data Aggregation
+
+✔ Multi-table Joins
+
+✔ Handling Missing Data
+
+✔ Pattern Matching
+
+✔ Business-Level Reporting
+
+✔ Sales Insights & Analytics
+
+✔ Data Cleaning + Exploration
+
+---
+
+## 📦 Technologies Used
+
+* **SQL / MySQL**
+* **DBMS concepts**
+* **Joins & Aggregations**
+* **Data cleaning techniques**
+
+---
+
+## 🧑‍💻 Author
+
+**Tharannum** — Passionate about Data Analytics, SQL, and AI-driven insights.
+Working on real-world datasets to sharpen analytical skills.
+
+---
+
+ 
+
