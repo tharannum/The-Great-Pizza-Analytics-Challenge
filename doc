@@ -1,0 +1,181 @@
+The Great Pizza Analytics Challenge
+Phase 1: Foundation & Inspection
+ Creating a Table by running a create query and inserting data by  running an insert statement.
+ 1. List all unique pizza categories (`DISTINCT`).
+select distinct category FROM idc_pizza.pizza_types;
+
+2. Display `pizza_type_id`, `name`, and ingredients, replacing NULL ingredients with `"Missing Data"`. Show first 5 rows.
+SELECT pizza_type_id, name, coalesce(ingredients, 'Missing Data') as ingredients FROM idc_pizza.pizza_types limit 5;
+
+. 
+3. Check for pizzas missing a price (`IS NULL`).
+SELECT * FROM idc_pizza.pizzas where price is null;
+
+Phase 2: Filtering & Exploration
+1. Orders placed on `'2015-01-01'` (`SELECT` + `WHERE`).
+select * FROM idc_pizza.orders
+where date = '2015-01-01';
+
+
+2. List pizzas with `price` descending.
+select  * FROM idc_pizza.pizzas
+order by price desc;
+
+
+
+3. Pizzas sold in sizes `'L'` or `'XL'`.
+SELECT * FROM idc_pizza.pizzas
+where size in ('L','XL');
+
+
+
+4. Pizzas priced between $15.00 and $17.00.
+SELECT * FROM idc_pizza.pizzas
+where price between 15.00 and 17.00;
+
+
+
+5. Pizzas with `"Chicken"` in the name.
+SELECT * FROM idc_pizza.pizza_types
+where name like '%chicken%';
+
+
+
+6. Orders on `'2015-02-15'` or placed after 8 PM.
+SELECT * FROM idc_pizza.orders
+where date ='2015-02-15' or time >='20:00:00'
+;
+
+
+
+Phase 3: Sales Performance
+
+1. Total quantity of pizzas sold (`SUM`).
+SELECT sum(quantity)
+ as  total_quantity_sold
+FROM order_details;
+
+
+
+2. Average pizza price (`AVG`).
+SELECT round(avg(price),2) as Avg_price
+FROM idc_pizza.pizzas;
+
+
+
+3. Total order value per order (`JOIN`, `SUM`, `GROUP BY`).
+  
+SELECT 
+    o.order_id,
+    ROUND(
+        SUM(COALESCE(od.quantity, 0) * COALESCE(p.price, 0)), 2
+    ) AS total_order_value
+FROM orders o
+JOIN order_details od
+    ON o.order_id = od.order_id
+JOIN pizzas p
+    ON od.pizza_id = p.pizza_id
+GROUP BY o.order_id;
+
+
+
+
+4. Total quantity sold per pizza category (`JOIN`, `GROUP BY`).
+SELECT 
+     pt.category, 
+    sum(coalesce(od.quantity, 0)) as toatal_quantity_sold
+FROM order_details od
+join pizzas p 
+on od.pizza_id = p.pizza_id
+JOIN pizza_types pt
+    ON p.pizza_type_id= pt.pizza_type_id
+GROUP BY pt.category;
+
+
+
+5. Categories with more than 5,000 pizzas sold (`HAVING`).
+SELECT 
+     pt.category, 
+    sum(coalesce(od.quantity, 0)) as toatal_quantity_sold
+FROM order_details od
+join pizzas p 
+on od.pizza_id = p.pizza_id
+JOIN pizza_types pt
+    ON p.pizza_type_id= pt.pizza_type_id
+GROUP BY pt.category
+having sum(coalesce(od.quantity, 0)) > 5000;
+
+
+
+6. Pizzas never ordered (`LEFT/RIGHT JOIN`).
+
+SELECT 
+    p.pizza_id,
+    pt.name AS pizza_name,
+    p.size
+FROM pizzas p
+JOIN pizza_types pt
+    ON p.pizza_type_id = pt.pizza_type_id
+LEFT JOIN order_details od
+    ON p.pizza_id = od.pizza_id
+WHERE od.order_id IS NULL;
+
+
+7. Price differences between different sizes of the same pizza (`SELF JOIN`).
+
+SELECT 
+    pt.name AS pizza_name,
+    p1.pizza_type_id,
+    p1.size AS size_1,
+    p2.size AS size_2,
+    ROUND(p2.price - p1.price, 2) AS price_difference
+FROM pizzas p1
+JOIN pizzas p2
+    ON p1.pizza_type_id = p2.pizza_type_id
+   AND (CASE p1.size
+            WHEN 'S' THEN 1
+            WHEN 'M' THEN 2
+            WHEN 'L' THEN 3
+            WHEN 'XL' THEN 4
+            WHEN 'XXL' THEN 5
+        END)
+        <
+       (CASE p2.size
+            WHEN 'S' THEN 1
+            WHEN 'M' THEN 2
+            WHEN 'L' THEN 3
+            WHEN 'XL' THEN 4
+            WHEN 'XXL' THEN 5
+        END)
+JOIN pizza_types pt
+    ON p1.pizza_type_id = pt.pizza_type_id
+ORDER BY 
+    pt.name,
+    CASE p1.size
+        WHEN 'S' THEN 1
+        WHEN 'M' THEN 2
+        WHEN 'L' THEN 3
+        WHEN 'XL' THEN 4
+        WHEN 'XXL' THEN 5
+    END;
+
+SELECT 
+    pt.name AS pizza_name,
+    p1.pizza_type_id,
+    p1.size AS size_1,
+    p2.size AS size_2,
+    ROUND(p2.price - p1.price, 2) AS price_difference
+FROM pizzas p1
+JOIN pizzas p2
+    ON p1.pizza_type_id = p2.pizza_type_id
+   AND FIELD(p1.size, 'S','M','L','XL','XXL')
+       < FIELD(p2.size, 'S','M','L','XL','XXL')
+JOIN pizza_types pt
+    ON p1.pizza_type_id = pt.pizza_type_id
+ORDER BY 
+    pt.name,
+    FIELD(p1.size, 'S','M','L','XL','XXL');
+
+
+
+
